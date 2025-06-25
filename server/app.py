@@ -87,11 +87,29 @@ class Login(Resource):
                 {'error':'Unauthorized'},
                 401
             )
+            
+
+class Logout(Resource):
+    def delete(self):
+        if session['user_id']:
+            session['user_id'] = None
+            return make_response(
+                {'message':'Successfully logged out. See you later.'},
+                200
+            )
+        return make_response(
+            {'error':'You are not logged in'},
+            401
+        )
+            
+            
+            
 
 
 
 api.add_resource(Register, '/register')
 api.add_resource(Login, '/login')
+api.add_resource(Logout,'/logout')
 
 if __name__ == '__main__':
     app.run()
