@@ -1,0 +1,9 @@
+.dashboard-container {
+  display: flex;
+  width: 100%;
+}
+
+.dashboard-content {
+  flex: 4;
+  padding: 20px;
+}

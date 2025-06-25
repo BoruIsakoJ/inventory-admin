@@ -32,7 +32,7 @@ function LoginPage() {
                 .then((json) => {
                     console.log(json)
                     alert('Login successful!')
-                    navigate('/')
+                    navigate('/dashboard')
                 })
                 .catch((error) => {
                     console.log(error)

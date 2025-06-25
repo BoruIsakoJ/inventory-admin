@@ -1,0 +1,20 @@
+.userList{
+    flex:4;
+}
+.userListButtons{
+    display: flex;
+    align-items: center;
+
+}
+.userListEdit{
+    color: blue;
+    cursor: pointer;
+
+}
+.userListDelete{
+    color:rgb(197, 0, 0);
+    cursor: pointer;
+    margin-left: 25px;
+    border: none;
+    background-color: transparent;
+}
