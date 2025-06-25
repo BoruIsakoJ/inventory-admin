@@ -13,10 +13,25 @@ class User(db.Model,SerializerMixin):
     name= db.Column(db.String, nullable= False)
     email=db.Column(db.String, nullable=False, unique=True)
     _password_hash=db.Column(db.String, nullable=False)
-    user_role_id=db.Column(db.Integer, db.ForeignKey('user_roles.id'))
+    user_role_id=db.Column(db.Integer, db.ForeignKey('user_roles.id'),default=2)
+    
+    user_role = db.relationship("UserRole", backref='users')
+    
+    serialize_rules = ('-user_role_id', '-_password_hash', 'user_role')
+
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'email': self.email,
+            'user_role': self.user_role.name if self.user_role else None
+        }
+
     
     def __repr__(self):
         return f'<User {self.name}, {self.email}>'
+    
     
     
     validates('name')
@@ -58,6 +73,8 @@ class UserRole(db.Model,SerializerMixin):
     
     id=db.Column(db.Integer, primary_key=True)
     name=db.Column(db.String, nullable=False)
+    
+    serialize_rules=('-users',)
     
     def __repr__(self):
         return f'<UserRole {self.name}>'
