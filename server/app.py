@@ -85,7 +85,7 @@ class Login(Resource):
         else:
             return make_response(
                 {'error':'Unauthorized'},
-                401
+                422
             )
             
 
@@ -99,7 +99,7 @@ class Logout(Resource):
             )
         return make_response(
             {'error':'You are not logged in'},
-            401
+            422
         )
 
 class UsersResource(Resource):
@@ -111,7 +111,7 @@ class UsersResource(Resource):
         else:
             return make_response(
                 {'error':'Unauthorized'},
-                401
+                422
             )
     
     def post(self):
@@ -196,7 +196,7 @@ class UserResourceById(Resource):
         else:
             return make_response(
                 {'error':'Unauthorized'},
-                401
+                422
             )    
             
 
@@ -222,7 +222,7 @@ class UserResourceById(Resource):
         else:
             return make_response(
                 {'error':'Unauthorized'},
-                401
+                422
             )
                    
             
@@ -237,7 +237,7 @@ class CategoryResource(Resource):
         else:
             return make_response(
                 {'error':'Unauthorized'},
-                401
+                422
             )
     
     def post(self):
@@ -257,7 +257,7 @@ class CategoryResource(Resource):
         else:
             return make_response(
                 {'error':'Unauthorized'},
-                401
+                422
             )
 
 
@@ -300,7 +300,7 @@ class CategoryByIdResource(Resource):
         else:
             return make_response(
                 {'error':'Unauthorized'},
-                401
+                422
             )
         
     
@@ -322,7 +322,7 @@ class CategoryByIdResource(Resource):
         else:
             return make_response(
                 {'error':'Unauthorized'},
-                401
+                422
             )
 
 
@@ -362,7 +362,7 @@ class ProductResource(Resource):
         else:
             return make_response(
                 {'error':'Unauthorized'},
-                401
+                422
             )
 
 
@@ -384,7 +384,7 @@ class ProductByIDResource(Resource):
         else:
             return make_response(
                 {'error':'Unauthorized'},
-                401
+                422
             )
         
     def patch(self,id):
@@ -410,7 +410,7 @@ class ProductByIDResource(Resource):
         else:
             return make_response(
                 {'error':'Unauthorized'},
-                401
+                422
             )
             
     def delete(self,id):
@@ -434,9 +434,109 @@ class ProductByIDResource(Resource):
         else:
             return make_response(
                 {'error':'Unauthorized'},
-                401
+                422
             )
             
+class SupplierResource(Resource):
+    def get(self):
+        if session['user_id']:
+            supplier_dict = [supplier.to_dict() for supplier in Supplier.query.all()]
+            return make_response(
+                supplier_dict,
+                200
+            )
+        else:
+            return make_response(
+                {'error':'Unauthorized'},
+                422
+            )
+        
+    def post(self):
+        if session['user_id']:
+            data=request.get_json()
+            name=data.get('name')
+            phone=data.get('phone')
+            email=data.get('email')
+            address=data.get('address')
+
+            new_supplier = Supplier(name=name,phone=phone,email=email,address=address)
+
+            db.session.add(new_supplier)
+            db.session.commit()
+        
+        else:
+            return make_response(
+                {'error':'Unauthorized'},
+                401
+            )
+        
+class SupplierByIdResource(Resource):
+    def get(self,id):
+        if session['user_id']:
+            supplier = Supplier.query.filter(Supplier.id==id).first()
+            if supplier:
+                return make_response(
+                    supplier.to_dict(),
+                    200
+                )
+            else:
+                return make_response(
+                    {'message':'Supplier does not exists'},
+                    404
+                )
+            
+        else:
+            return make_response(
+                {'error':'Unauthorized'},
+                401
+            )
+
+    def patch(self,id):
+        if session['user_id']:
+            supplier = Supplier.query.filter(Supplier.id==id).first()
+            if supplier:
+                data = request.get_json()
+                for attr in data:
+                    setattr(supplier,attr,data.get(attr))
+                
+                db.session.commit()
+                return make_response(
+                    supplier.to_dict(),
+                    200
+                )
+            else:
+                return make_response(
+                    {'message':'Supplier does not exists'},
+                    404
+                )
+            
+        else:
+            return make_response(
+                {'error':'Unauthorized'},
+                401
+            )
+
+    def delete(self,id):
+        if session['user_id']:
+            supplier = Supplier.query.filter(Supplier.id==id).first()
+            if supplier:
+                db.session.delete(supplier)
+                db.session.commit()
+                return make_response(
+                    supplier.to_dict(),
+                    200
+                )
+            else:
+                return make_response(
+                    {'message':'Supplier does not exists'},
+                    404
+                )
+            
+        else:
+            return make_response(
+                {'error':'Unauthorized'},
+                422
+            )
 
 
 
@@ -450,6 +550,8 @@ api.add_resource(CategoryResource,'/categories')
 api.add_resource(CategoryByIdResource,'/categories/<int:id>')
 api.add_resource(ProductResource,'/products')
 api.add_resource(ProductByIDResource,'/products/<int:id>')
+api.add_resource(SupplierResource,'/suppliers')
+api.add_resource(SupplierByIdResource,'/suppliers/<int:id>')
 
 if __name__ == '__main__':
     app.run()
