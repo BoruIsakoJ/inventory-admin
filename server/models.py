@@ -25,7 +25,8 @@ class User(db.Model,SerializerMixin):
             'id': self.id,
             'name': self.name,
             'email': self.email,
-            'user_role': self.user_role.name if self.user_role else None
+            'user_role': self.user_role.name if self.user_role else None,
+            'user_role_id': self.user_role_id
         }
 
     
@@ -78,3 +79,48 @@ class UserRole(db.Model,SerializerMixin):
     
     def __repr__(self):
         return f'<UserRole {self.name}>'
+    
+
+
+
+class Product(db.Model,SerializerMixin):
+    __tablename__ = 'products'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String, nullable=False)
+    description = db.Column(db.String, nullable=True)
+    price = db.Column(db.Integer, nullable=False)
+    quantity_in_stock = db.Column(db.Integer, nullable=False)
+    category_id = db.Column(db.Integer, db.ForeignKey('categories.id'), nullable=False)
+    supplier_id = db.Column(db.Integer, db.ForeignKey('suppliers.id'), nullable=False)
+    
+    
+    category = db.relationship("Category", back_populates="products")
+    supplier = db.relationship("Supplier", back_populates="products")
+
+    serialize_rules = ('category.name', 'supplier.name')
+
+    def __repr__(self):
+        return f"<Product(id={self.id} name={self.name}, price={self.price}, quantity_in_stock={self.quantity_in_stock})>"
+    
+class Category(db.Model,SerializerMixin):
+    __tablename__ = 'categories'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String, nullable=False)
+    products = db.relationship("Product", back_populates="category")
+
+    serialize_rules = ('-products',)
+
+    def __repr__(self):
+        return f"<Category(id={self.id} name={self.name})>"
+    
+    
+class Supplier(db.Model,SerializerMixin):
+    __tablename__ = 'suppliers'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String, nullable=False)
+    contact_info = db.Column(db.String, nullable=True)
+    products = db.relationship("Product", back_populates="supplier")
+    serialize_rules = ('-products',)
+    def __repr__(self):
+        return f"<Supplier(id={self.id} name={self.name} contact_info={self.contact_info})>"
