@@ -1,0 +1,61 @@
+.supplier {
+  flex: 4;
+  padding: 20px;
+}
+
+.supplierTitle {
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.supplierContainer {
+  display: flex;
+  margin-top: 20px;
+}
+
+.supplierShow,
+.supplierUpdate {
+  flex: 1;
+  padding: 20px;
+  box-shadow: 0px 0px 10px #e0e0e0;
+  border-radius: 10px;
+  margin-right: 20px;
+}
+
+.supplierShowTitle {
+  font-weight: bold;
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+.supplierShowInfo {
+  display: flex;
+  align-items: center;
+  margin: 10px 0;
+}
+
+.supplierShowInfoText {
+  margin-left: 10px;
+}
+
+.supplierUpdateTitle {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.supplierUpdateForm {
+  display: flex;
+  flex-direction: column;
+}
+
+.supplierUpdateItem {
+  margin-bottom: 15px;
+}
+
+.supplierUpdateInput {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid lightgray;
+  border-radius: 5px;
+}

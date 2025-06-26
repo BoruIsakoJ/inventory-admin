@@ -1,47 +1,58 @@
-import "./featuredInfo.css"
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import "./featuredInfo.css";
+import { useEffect, useState } from "react";
+import InventoryIcon from "@mui/icons-material/Inventory";
+import LocalShippingIcon from "@mui/icons-material/LocalShipping";
+import CategoryIcon from "@mui/icons-material/Category";
+
 function FeaturedInfo() {
-    return (
-        <div className="featured">
-            <div className="featuredItem">
-                <span className="featuredTitle">Revenue </span>
-                <div className="featuredMoneyContainer">
-                    <span className="featuredMoney">$2,415</span>
-                    <span className="featuredMoneyRate">
-                        -11.4
-                        <ArrowDownwardIcon className="featuredIcon negative"/>
-                    </span>
-                </div>
-                <span className="featuredSub">Compared to last month</span>
-            </div>
+  const [productCount, setProductCount] = useState(0);
+  const [supplierCount, setSupplierCount] = useState(0);
+  const [categoryCount, setCategoryCount] = useState(0);
 
-            <div className="featuredItem">
-                <span className="featuredTitle">Sales </span>
-                <div className="featuredMoneyContainer">
-                    <span className="featuredMoney">$4,415</span>
-                    <span className="featuredMoneyRate">
-                        -1.4
-                        <ArrowDownwardIcon className="featuredIcon negative"/>
-                    </span>
-                </div>
-                <span className="featuredSub">Compared to last month</span>
-            </div>
+  useEffect(() => {
+    fetch("/products", { credentials: "include" })
+      .then((res) => res.json())
+      .then((data) => setProductCount(data.length));
 
-            <div className="featuredItem">
-                <span className="featuredTitle">Cost </span>
-                <div className="featuredMoneyContainer">
-                    <span className="featuredMoney">$5,415</span>
-                    <span className="featuredMoneyRate">
-                        +1.4
-                        <ArrowUpwardIcon className="featuredIcon"/>
-                    </span>
-                </div>
-                <span className="featuredSub">Compared to last month</span>
-            </div>
+    fetch("/suppliers", { credentials: "include" })
+      .then((res) => res.json())
+      .then((data) => setSupplierCount(data.length));
 
+    fetch("/categories", { credentials: "include" })
+      .then((res) => res.json())
+      .then((data) => setCategoryCount(data.length));
+  }, []);
+
+  return (
+    <div className="featured">
+      <div className="featuredItem">
+        <span className="featuredTitle">Products</span>
+        <div className="featuredIconContainer">
+          <InventoryIcon className="featuredIcon" />
         </div>
-    )
+        <span className="featuredData">{productCount}</span>
+        <span className="featuredSub">Total products available</span>
+      </div>
+
+      <div className="featuredItem">
+        <span className="featuredTitle">Suppliers</span>
+        <div className="featuredIconContainer">
+          <LocalShippingIcon className="featuredIcon" />
+        </div>
+        <span className="featuredData">{supplierCount}</span>
+        <span className="featuredSub">Registered suppliers</span>
+      </div>
+
+      <div className="featuredItem">
+        <span className="featuredTitle">Categories</span>
+        <div className="featuredIconContainer">
+          <CategoryIcon className="featuredIcon" />
+        </div>
+        <span className="featuredData">{categoryCount}</span>
+        <span className="featuredSub">Product categories</span>
+      </div>
+    </div>
+  );
 }
 
-export default FeaturedInfo
+export default FeaturedInfo;

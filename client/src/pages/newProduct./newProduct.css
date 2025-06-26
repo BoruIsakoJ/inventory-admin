@@ -1,0 +1,35 @@
+.newProduct {
+  flex: 4;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 0 30px -15px rgba(0, 0, 0, 0.45);
+  margin: auto;
+  background-color: #fff;
+}
+
+.newProductForm {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  max-width: 500px;
+}
+
+.newProductItem {
+  display: flex;
+  flex-direction: column;
+}
+
+.newProductItem label {
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: #495057;
+}
+
+.newProductItem input,
+.newProductInput {
+  padding: 10px 14px;
+  border: 1px solid #ced4da;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}

@@ -40,7 +40,7 @@ function ProductList() {
       width: 180,
       renderCell: (params) => (
         <div className="productListButtons">
-          <Link to={`/dashboard/product/${params.row.id}`} className="text-decoration-none">
+          <Link to={`/dashboard/products/${params.row.id}`} className="text-decoration-none">
             <div className="productListEdit">
               <EditIcon /> Edit
             </div>

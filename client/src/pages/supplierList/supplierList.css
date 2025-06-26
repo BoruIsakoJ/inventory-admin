@@ -1,0 +1,21 @@
+.supplierList {
+  flex: 4;
+}
+
+.supplierListButtons {
+  display: flex;
+  align-items: center;
+}
+
+.supplierListEdit {
+  color: blue;
+  cursor: pointer;
+}
+
+.supplierListDelete {
+  color: rgb(197, 0, 0);
+  cursor: pointer;
+  margin-left: 25px;
+  border: none;
+  background-color: transparent;
+}

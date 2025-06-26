@@ -2,55 +2,44 @@ import "./chart.css"
 import { BarChart, Bar,Rectangle, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 
+import { useEffect, useState } from "react";
+
 function Chart() {
+  const [data, setData] = useState([]);
 
+  useEffect(() => {
+    fetch("/products", { credentials: "include" })
+      .then((res) => res.json())
+      .then((products) => {
+        const formatted = products.map((product) => ({
+          name: product.name,
+          quantity: product.quantity_in_stock,
+        }));
+        setData(formatted);
+      })
+      .catch((err) => {
+        console.error("Error fetching products:", err);
+      });
+  }, []);
 
-    const data = [
-        {
-            name: 'Jan',
-            "Active User": 4000,
-        },
-        {
-            name: 'Feb',
-            "Active User": 3000
-        },
-        {
-            name: 'March',
-            "Active User": 2000
-        },
-        {
-            name: 'April',
-            "Active User": 2780
-        },
-        {
-            name: 'May',
-            "Active User": 1890
-        },
-        {
-            name: 'June',
-            "Active User": 2390
-        },
-        {
-            name: 'July',
-            "Active User": 3490
-        },
-    ];
-    return (
-        <div className="chart">
-            <h3 className="chartTitle">User Analytics</h3>
-            <ResponsiveContainer width="100%" aspect={4 / 1.2}>
-                <BarChart data={data}>
-                    <XAxis dataKey="name"/>
-                    <YAxis/>
-                    <Bar dataKey="Active User" fill="orange" activeBar={<Rectangle fill="orangered"/>}/>
-                    <Tooltip/>
-                    <Legend/>
-                </BarChart>
-            </ResponsiveContainer>
-        </div>
-
-
-    )
+  return (
+    <div className="chart">
+      <h3 className="chartTitle">Stock per Product</h3>
+      <ResponsiveContainer width="100%" aspect={4 / 1.2}>
+        <BarChart data={data}>
+          <XAxis dataKey="name" />
+          <YAxis />
+          <Tooltip />
+          <Legend />
+          <Bar
+            dataKey="quantity"
+            fill="orange"
+            activeBar={<Rectangle fill="orangered" />}
+          />
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
+  );
 }
 
-export default Chart
+export default Chart;
