@@ -13,6 +13,8 @@ flask-bcrypt = "*"
 psycopg2-binary = "*"
 flask-restful = "*"
 flask-cors = "*"
+honcho = "*"
+gunicorn = "*"
 
 [dev-packages]
 
