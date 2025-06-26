@@ -4,7 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import EmailIcon from "@mui/icons-material/Email";
 import LocalPhoneIcon from "@mui/icons-material/LocalPhone";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
-import BusinessIcon from "@mui/icons-material/Business";
+
 
 function Supplier() {
   const { id } = useParams();
