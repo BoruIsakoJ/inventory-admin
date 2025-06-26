@@ -14,6 +14,11 @@ import CategoryList from './pages/categoryList/CategoryList';
 import Category from './pages/category/Category';
 import NewCategory from './pages/newCategory/NewCategory';
 import ProductList from './pages/productList/ProductList';
+import Product from './pages/product/Product';
+import NewProduct from './pages/newProduct./NewProduct';
+import SupplierList from './pages/supplierList/SupplierList';
+import Supplier from './pages/supplier/Supplier';
+import NewSupplier from './pages/newSupplier/NewSupplier';
 
 function App() {
   return (
@@ -32,6 +37,11 @@ function App() {
           <Route path='categories/:id' element={<Category/>}/>
           <Route path='newCategory' element={<NewCategory/>}/>
           <Route path='products' element={<ProductList/>}/>
+          <Route path='products/:id'element={<Product/>}/>
+          <Route path='newProduct' element={<NewProduct/>}/>
+          <Route path='suppliers' element={<SupplierList/>}/>
+          <Route path='suppliers/:id' element={<Supplier/>}/>
+          <Route path='newSupplier' element={<NewSupplier/>}/>
         </Route>
         </Routes>
     </BrowserRouter>
