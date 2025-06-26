@@ -5,9 +5,9 @@ import LogoutIcon from '@mui/icons-material/Logout';
 function Topbar() {
   return (
     <div className='topbar'>
-        <div className="topbarWrapper">
+        <div className="d-flex justify-content-between align-items-center mx-3 my-1">
             <div className="topLeft">
-                <span className="logo">Safi Admin</span>
+                <span className=" fw-bold text-primary fs-2">Safi Admin</span>
             </div>
             <div className="topRight">
                 <div className="topbarIcons">

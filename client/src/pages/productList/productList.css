@@ -1,0 +1,21 @@
+.productList {
+  flex: 4;
+}
+
+.productListButtons {
+  display: flex;
+  align-items: center;
+}
+
+.productListEdit {
+  color: blue;
+  cursor: pointer;
+}
+
+.productListDelete {
+  color: rgb(197, 0, 0);
+  cursor: pointer;
+  margin-left: 25px;
+  border: none;
+  background-color: transparent;
+}

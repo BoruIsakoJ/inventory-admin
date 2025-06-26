@@ -1,4 +1,4 @@
-import "./userList.css"
+import "./categoryList.css";
 import { useEffect, useState } from "react";
 import { DataGrid } from '@mui/x-data-grid';
 import Paper from "@mui/material/Paper";
@@ -6,42 +6,37 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Link } from "react-router-dom";
 
-
-
-function UserList() {
-  const [users, setUsers] = useState([]);
+function CategoryList() {
+  const [categories, setCategories] = useState([]);
 
   function handleDelete(id) {
-    fetch(`/users/${id}`, {
+    fetch(`/categories/${id}`, {
       method: 'DELETE',
       credentials: 'include',
     })
       .then((res) => {
         if (res.ok) {
-          setUsers((prevUsers) => prevUsers.filter((user) => user.id !== id));
+          setCategories((prev) => prev.filter((category) => category.id !== id));
         } else {
           res.json().then(data => {
-            console.error("Failed to delete user:", data.error);
+            console.error("Failed to delete category:", data.error);
           });
         }
       })
       .catch((err) => console.error("Request error:", err));
   }
 
-
   const columns = [
-    { field: 'id', headerName: 'ID', width: 50 },
-    { field: 'name', headerName: 'Name', width: 130 },
-    { field: 'email', headerName: 'Email', width: 200 },
-    { field: 'user_role', headerName: 'User Role', width: 100, },
+    { field: 'id', headerName: 'ID', width: 80 },
+    { field: 'name', headerName: 'Category Name', width: 200 },
     {
       field: 'action',
       headerName: "Action",
-      width: 180,
+      width: 200,
       renderCell: (params) => {
         return (
           <div className="userListButtons">
-            <Link to={`/dashboard/user/${params.row.id}`} className="text-decoration-none">
+            <Link to={`/dashboard/categories/${params.row.id}`} className="text-decoration-none">
               <div className="userListEdit">
                 <EditIcon /> Edit
               </div>
@@ -57,24 +52,24 @@ function UserList() {
   ];
 
   useEffect(() => {
-    fetch("/users")
-      .then((r) => r.json())
+    fetch("/categories", {
+      credentials: "include",
+    })
+      .then((res) => res.json())
       .then((data) => {
-        console.log("Fetched users:", data)
-        setUsers(data);
+        console.log("Fetched categories:", data);
+        setCategories(data);
       });
   }, []);
 
-
-
   return (
     <>
-      <Link to="/dashboard/newUser" className="d-flex justify-content-end mb-3">
+      <Link to="/dashboard/newCategory" className="d-flex justify-content-end mb-3">
         <button className="btn btn-success mb-4">Create</button>
       </Link>
       <Paper sx={{ width: '100%' }}>
         <DataGrid
-          rows={users}
+          rows={categories}
           columns={columns}
           disableRowSelectionOnClick
           initialState={{
@@ -89,4 +84,4 @@ function UserList() {
   );
 }
 
-export default UserList;
+export default CategoryList;

@@ -1,0 +1,38 @@
+.newUser {
+    flex: 4;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 0 30px -15px rgba(0, 0, 0, 0.45);
+    margin: auto;
+}
+
+.newUserForm {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.newUserItem {
+    display: flex;
+    width: 350px;
+    flex-direction: column;
+}
+
+.newUserItem label {
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #495057;
+}
+
+.newUserItem input {
+    padding: 10px 14px;
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+.userUpdateItem select {
+    width: 350px;
+    display: block;
+}
