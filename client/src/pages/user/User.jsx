@@ -1,7 +1,7 @@
 import "./user.css";
 import PermIdentityIcon from '@mui/icons-material/PermIdentity';
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 function User() {
 
