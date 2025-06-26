@@ -27,8 +27,9 @@ with app.app_context():
     db.session.add_all([cat1, cat2])
     db.session.commit()
 
-    supplier1 = Supplier(name="Top Supplies Ltd", contact_info="0722123456")
-    supplier2 = Supplier(name="TechSource", contact_info="techsource@example.com")
+    supplier1 = Supplier(name="Top Supplies Ltd",email="topsupplies@gmail.com",phone="0722123456",address="Industrial Area, Nairobi")
+    supplier2 = Supplier(name="TechSource",email="techsource@gmail.com",phone="0712345678",address="Upper Hill, Nairobi")
+
     db.session.add_all([supplier1, supplier2])
     db.session.commit()
 
