@@ -119,7 +119,9 @@ class Supplier(db.Model,SerializerMixin):
     __tablename__ = 'suppliers'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
-    contact_info = db.Column(db.String, nullable=True)
+    email = db.Column(db.String)
+    phone = db.Column(db.String)
+    address = db.Column(db.String)
     products = db.relationship("Product", back_populates="supplier")
     serialize_rules = ('-products',)
     def __repr__(self):
