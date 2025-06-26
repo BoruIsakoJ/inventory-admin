@@ -8,6 +8,12 @@ import RegisterPage from './pages/RegisterPage';
 import DashboardLayout from './layout/DashboardLayout';
 import Home from './pages/home/Home';
 import Users from './pages/userList/UserList';
+import User from './pages/user/User';
+import NewUser from './pages/newUser/NewUser';
+import CategoryList from './pages/categoryList/CategoryList';
+import Category from './pages/category/Category';
+import NewCategory from './pages/newCategory/NewCategory';
+import ProductList from './pages/productList/ProductList';
 
 function App() {
   return (
@@ -20,6 +26,12 @@ function App() {
         <Route path='/dashboard' element={<DashboardLayout/>}>
           <Route index element={<Home/>}/>
           <Route path='users' element={<Users/>}/>
+          <Route path='user/:id' element={<User/>} /> 
+          <Route path='newUser' element={<NewUser/>}/>
+          <Route path='categories' element={<CategoryList/>}/>
+          <Route path='categories/:id' element={<Category/>}/>
+          <Route path='newCategory' element={<NewCategory/>}/>
+          <Route path='products' element={<ProductList/>}/>
         </Route>
         </Routes>
     </BrowserRouter>
