@@ -109,7 +109,7 @@ function Product() {
                         </div>
                         <div className="productShowInfo">
                             <strong><ShoppingCartIcon /></strong>
-                            <span className="productShowInfoText">{productData.stock}</span>
+                            <span className="productShowInfoText">{productData.quantity_in_stock}</span>
                         </div>
                         <div className="productShowInfo">
                             <strong><CategoryIcon /></strong>
