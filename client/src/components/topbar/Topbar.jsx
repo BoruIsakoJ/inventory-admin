@@ -3,7 +3,7 @@ import './topbar.css'
 import LogoutIcon from '@mui/icons-material/Logout';
 import { useNavigate } from 'react-router-dom';
 
-function Topbar() {
+function Topbar({ setCurrentUser }) {
   const navigate = useNavigate();
 
   function handleLogout() {
@@ -13,14 +13,17 @@ function Topbar() {
     })
       .then((res) => {
         if (res.ok) {
-          navigate('/');
+          alert('Logout successful.')
+          setCurrentUser(null)
+          navigate('/')
+          
         } else {
-          alert('Logout failed.');
+          alert('Logout failed.')
         }
       })
       .catch((err) => {
-        console.error("Logout error:", err);
-        alert('An error occurred.');
+        console.error("Logout error:", err)
+        alert('An error occurred.')
       });
   }
 
