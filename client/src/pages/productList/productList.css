@@ -95,3 +95,21 @@
     border-radius: 5px;
     outline: none;
 }
+.productListButtons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.productListDelete {
+  border: none;
+  background-color: transparent;
+  color: rgb(202, 0, 0);
+  cursor: pointer;
+}
+
+.productListEdit {
+  color: darkblue;
+  cursor: pointer;
+}
+
