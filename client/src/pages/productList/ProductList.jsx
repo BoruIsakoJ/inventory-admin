@@ -6,7 +6,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Link } from "react-router-dom";
 
-function ProductList() {
+function ProductList({currentUser}) {
   const [products, setProducts] = useState([]);
 
   function handleDelete(id) {
@@ -38,23 +38,29 @@ function ProductList() {
       field: "action",
       headerName: "Action",
       width: 180,
-      renderCell: (params) => (
-        <div className="productListButtons">
-          <Link to={`/dashboard/products/${params.row.id}`} className="text-decoration-none">
-            <div className="productListEdit">
-              <EditIcon /> Edit
-            </div>
-          </Link>
-          <button
-            className="productListDelete"
-            onClick={() => handleDelete(params.row.id)}
-          >
-            <DeleteIcon /> Delete
-          </button>
-        </div>
-      ),
+      renderCell: (params) => {
+        if (!currentUser || currentUser.user_role !== "admin") return null
+        return (
+          <div className="productListButtons">
+            <Link
+              to={`/dashboard/products/${params.row.id}`}
+              className="text-decoration-none"
+            >
+              <div className="productListEdit">
+                <EditIcon /> Edit
+              </div>
+            </Link>
+            <button
+              className="productListDelete"
+              onClick={() => handleDelete(params.row.id)}
+            >
+              <DeleteIcon /> Delete
+            </button>
+          </div>
+        );
+      },
     },
-  ];
+  ]
 
   useEffect(() => {
     fetch("/products", { credentials: "include" })
@@ -71,9 +77,11 @@ function ProductList() {
 
   return (
     <>
-      <Link to="/dashboard/newProduct" className="d-flex justify-content-end mb-3">
-        <button className="btn btn-success mb-4">Create</button>
-      </Link>
+      {currentUser?.user_role === "admin" && (
+        <Link to="/dashboard/newProduct" className="d-flex justify-content-end mb-3">
+          <button className="btn btn-success mb-4">Create</button>
+        </Link>
+      )}
       <Paper sx={{ width: "100%" }}>
         <DataGrid
           rows={products}

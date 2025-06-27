@@ -6,7 +6,7 @@ import Paper from "@mui/material/Paper";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 
-function SupplierList() {
+function SupplierList({currentUser}) {
   const [suppliers, setSuppliers] = useState([]);
 
   useEffect(() => {
@@ -44,26 +44,34 @@ function SupplierList() {
       field: "action",
       headerName: "Action",
       width: 180,
-      renderCell: (params) => (
-        <div className="supplierListButtons">
-          <Link to={`/dashboard/suppliers/${params.row.id}`} className="text-decoration-none">
-            <div className="supplierListEdit">
-              <EditIcon /> Edit
-            </div>
-          </Link>
-          <button className="supplierListDelete" onClick={() => handleDelete(params.row.id)}>
-            <DeleteIcon /> Delete
-          </button>
-        </div>
-      ),
+      renderCell: (params) => {
+        if (!currentUser || currentUser.user_role !== "admin") return null;
+        return (
+          <div className="supplierListButtons">
+            <Link to={`/dashboard/suppliers/${params.row.id}`} className="text-decoration-none">
+              <div className="supplierListEdit">
+                <EditIcon /> Edit
+              </div>
+            </Link>
+            <button
+              className="supplierListDelete"
+              onClick={() => handleDelete(params.row.id)}
+            >
+              <DeleteIcon /> Delete
+            </button>
+          </div>
+        );
+      },
     },
-  ];
+  ]
 
   return (
     <>
-      <Link to="/dashboard/newSupplier" className="d-flex justify-content-end mb-3">
-        <button className="btn btn-success mb-4">Create</button>
-      </Link>
+      {currentUser?.user_role === "admin" && (
+        <Link to="/dashboard/newSupplier" className="d-flex justify-content-end mb-3">
+          <button className="btn btn-success mb-4">Create</button>
+        </Link>
+      )}
       <Paper sx={{ width: "100%" }}>
         <DataGrid
           rows={suppliers}

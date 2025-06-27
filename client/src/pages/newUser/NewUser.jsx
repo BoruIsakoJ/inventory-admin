@@ -53,19 +53,19 @@ function NewUser() {
             <form className="newUserForm" onSubmit={handleSubmit}>
                 <div className="newUserItem">
                     <label>Name: </label>
-                    <input type='text' name='name' placeholder='Enter your name' value={formData.name} onChange={handleChange} />
+                    <input required type='text' name='name' placeholder='Enter your name' value={formData.name} onChange={handleChange} />
                 </div>
                 <div className="newUserItem">
                     <label>Email: </label>
-                    <input type='email' name='email' placeholder='Enter your email' value={formData.email} onChange={handleChange}/>
+                    <input required type='email' name='email' placeholder='Enter your email' value={formData.email} onChange={handleChange}/>
                 </div>
                 <div className="newUserItem">
                     <label>Password: </label>
-                    <input type='password' name='password' placeholder='Enter your password' value={formData.password} onChange={handleChange}/>
+                    <input required type='password' name='password' placeholder='Enter your password' value={formData.password} onChange={handleChange}/>
                 </div>
                 <div className="userUpdateItem">
                     <label>User Role:</label>
-                    <select name="user_role" className="userUpdateInput" value={formData.user_role_id} onChange={(e)=>{setFormData({...formData,user_role_id:parseInt(e.target.value)})}}>
+                    <select required name="user_role" className="userUpdateInput" value={formData.user_role_id} onChange={(e)=>{setFormData({...formData,user_role_id:parseInt(e.target.value)})}}>
                         <option value="" disabled>--Select User Role--</option>
                         <option value={1}>Admin</option>
                         <option value={2}>Local</option>

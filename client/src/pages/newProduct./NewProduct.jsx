@@ -7,6 +7,7 @@ function NewProduct() {
 
   const [formData, setFormData] = useState({
     name: '',
+    description:'',
     price: '',
     quantity_in_stock: '',
     category_id: '',
@@ -30,7 +31,7 @@ function NewProduct() {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: name === 'price' || name === 'quantity_in_stock' ? parseFloat(value) || 0 : value
+      [name]: name === 'price' || name === 'quantity_in_stock' ? parseInt(value) || 0 : value
     }));
   }
 
@@ -68,6 +69,17 @@ function NewProduct() {
             name="name"
             placeholder="Enter product name"
             value={formData.name}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div className="newProductItem">
+          <label>Description:</label>
+          <input
+            type="text"
+            name="description"
+            placeholder="Enter product name"
+            value={formData.description}
             onChange={handleChange}
             required
           />

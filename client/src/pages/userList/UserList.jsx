@@ -8,7 +8,7 @@ import { Link } from "react-router-dom";
 
 
 
-function UserList() {
+function UserList({currentUser}) {
   const [users, setUsers] = useState([]);
 
   function handleDelete(id) {
@@ -39,6 +39,7 @@ function UserList() {
       headerName: "Action",
       width: 180,
       renderCell: (params) => {
+          if (!currentUser || currentUser.user_role !== 'admin') return null;
         return (
           <div className="userListButtons">
             <Link to={`/dashboard/user/${params.row.id}`} className="text-decoration-none">
@@ -69,9 +70,11 @@ function UserList() {
 
   return (
     <>
-      <Link to="/dashboard/newUser" className="d-flex justify-content-end mb-3">
-        <button className="btn btn-success mb-4">Create</button>
-      </Link>
+      {currentUser?.user_role === "admin" && (
+        <Link to="/dashboard/newUser" className="d-flex justify-content-end mb-3">
+          <button className="btn btn-success mb-4">Create</button>
+        </Link>
+      )}
       <Paper sx={{ width: '100%' }}>
         <DataGrid
           rows={users}

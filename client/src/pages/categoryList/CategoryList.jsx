@@ -6,7 +6,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Link } from "react-router-dom";
 
-function CategoryList() {
+function CategoryList({currentUser}) {
   const [categories, setCategories] = useState([]);
 
   function handleDelete(id) {
@@ -34,6 +34,7 @@ function CategoryList() {
       headerName: "Action",
       width: 200,
       renderCell: (params) => {
+        if (!currentUser || currentUser.user_role !== "admin") return null;
         return (
           <div className="userListButtons">
             <Link to={`/dashboard/categories/${params.row.id}`} className="text-decoration-none">
@@ -41,7 +42,6 @@ function CategoryList() {
                 <EditIcon /> Edit
               </div>
             </Link>
-
             <button className="userListDelete" onClick={() => handleDelete(params.row.id)}>
               <DeleteIcon /> Delete
             </button>
@@ -64,9 +64,11 @@ function CategoryList() {
 
   return (
     <>
-      <Link to="/dashboard/newCategory" className="d-flex justify-content-end mb-3">
-        <button className="btn btn-success mb-4">Create</button>
-      </Link>
+      {currentUser?.user_role === "admin" && (
+        <Link to="/dashboard/newCategory" className="d-flex justify-content-end mb-3">
+          <button className="btn btn-success mb-4">Create</button>
+        </Link>
+      )}
       <Paper sx={{ width: '100%' }}>
         <DataGrid
           rows={categories}
