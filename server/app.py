@@ -1,15 +1,21 @@
 from config import Config
-from flask import Flask,request,session,make_response
+from flask import Flask,request,session,make_response,render_template
 from sqlalchemy.exc import IntegrityError
 from flask_migrate import Migrate
 from flask_bcrypt import Bcrypt
 from flask_restful import Api,Resource
 from models import db,User,UserRole,Category,Product,Supplier
-from flask_cors import CORS,cross_origin
+from flask_cors import CORS
 
 
 
-app = Flask(__name__)
+app = Flask(
+    __name__,
+    static_url_path='',
+    static_folder='../client/build',
+    template_folder='../client/build'
+)
+
 bcrypt = Bcrypt(app)
 api=Api(app)
 app.config.from_object(Config)
@@ -19,6 +25,12 @@ CORS(app, supports_credentials=True)
 migrate = Migrate(app,db)
 
 first_request = True
+
+
+@app.route('/')
+def index():
+    return render_template("index.html")
+
 
 @app.before_request
 def create_default_roles():
@@ -567,5 +579,5 @@ api.add_resource(SupplierResource,'/suppliers')
 api.add_resource(SupplierByIdResource,'/suppliers/<int:id>')
 api.add_resource(Me, '/me')
 
-if __name__ == '__main__':
-    app.run()
+
+
