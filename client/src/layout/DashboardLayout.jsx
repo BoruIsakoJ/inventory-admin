@@ -4,10 +4,10 @@ import Sidebar from '../components/sidebar/Sidebar';
 import './dashboardLayout.css'
 
 
-function DashboardLayout() {
+function DashboardLayout({ currentUser, setCurrentUser }) {
   return (
     <>
-      <Topbar />
+      <Topbar currentUser={currentUser} setCurrentUser={setCurrentUser} />
       <div className="dashboard-container">
         <Sidebar />
         <div className="dashboard-content">
