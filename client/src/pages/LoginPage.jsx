@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-function LoginPage() {
+function LoginPage({setCurrentUser}) {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const navigate = useNavigate()
@@ -25,19 +25,23 @@ function LoginPage() {
             })
                 .then((response) => {
                     if (!response.ok) {
-                        throw new Error(`HTTP status ${response.status}`);
+                        throw new Error(`HTTP status ${response.status}`)
                     }
-                    return response.json()
+                    return fetch('/me', { credentials: 'include' })
                 })
-                .then((json) => {
-                    console.log(json)
+                .then((res) => {
+                    if (!res.ok) throw new Error("Failed to fetch current user")
+                    return res.json()
+                })
+                .then((user) => {
+                    setCurrentUser(user)
                     alert('Login successful!')
                     navigate('/dashboard')
                 })
                 .catch((error) => {
-                    console.log(error)
+                    console.error("Login error:", error)
                     alert('Invalid credentials or server error.')
-                })
+                });
         }
     }
 
