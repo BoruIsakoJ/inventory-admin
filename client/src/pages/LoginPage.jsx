@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 function LoginPage({setCurrentUser}) {
     const [email, setEmail] = useState("")
@@ -58,7 +58,7 @@ function LoginPage({setCurrentUser}) {
                     <input type="password" id="password" value={password} onChange={(e) => setPassword(e.target.value)} className="form-control" placeholder="Enter your password" />
                 </div>
                 <button type="button" className="btn btn-primary w-100 mb-3" onClick={logInUser}>Login</button>
-                <p className="text-center">Don't have an account? <a href="/register">Register</a></p>
+                <p className="text-center">Don't have an account? <Link to="/register">Register</Link></p>
             </div>
         </div>
     )
