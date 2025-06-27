@@ -18,6 +18,29 @@ CORS(app, supports_credentials=True)
 
 migrate = Migrate(app,db)
 
+first_request = True
+
+@app.before_request
+def create_default_roles():
+
+    admin = UserRole.query.filter_by(name='admin').first()
+    local = UserRole.query.filter_by(name='local').first()
+
+    if not admin:
+        db.session.add(UserRole(name='admin'))
+    if not local:
+        db.session.add(UserRole(name='local'))
+
+    db.session.commit()
+
+    user1 = User.query.filter(User.id==1).first()
+    if not user1:
+        user1 = User(name="admin", email="admin@gmail.com",password_hash="admin",user_role_id=1)
+        db.session.add(user1)  
+    
+    db.session.commit()
+    first_request = False
+
 
 class Register(Resource):
     def post(self):
@@ -91,16 +114,20 @@ class Login(Resource):
 
 class Logout(Resource):
     def delete(self):
-        if session['user_id']:
-            session['user_id'] = None
+        user_id = session.get('user_id')  
+
+        if user_id:
+            session.pop('user_id', None) 
             return make_response(
-                {'message':'Successfully logged out. See you later.'},
+                {'message': 'Successfully logged out. See you later.'},
                 200
             )
+
         return make_response(
-            {'error':'You are not logged in'},
+            {'error': 'You are not logged in'},
             422
         )
+
 
 class UsersResource(Resource):
     def get(self):
@@ -116,6 +143,11 @@ class UsersResource(Resource):
     
     def post(self):
         if session['user_id']:
+            if User.query.filter(User.id==session['user_id']).first().user_role.name != 'admin':
+                return make_response(
+                    {'error':'Unauthorized'},
+                    422
+                )
             data=request.get_json()
         
             name = data.get('name')
@@ -154,77 +186,72 @@ class UsersResource(Resource):
                 )
 
 class UserResourceById(Resource):
-    def get(self,id):
-        if session['user_id']:
-            user=User.query.filter(User.id==id).first()
-            if not user:
-                return make_response(
-                    {'message':'User does not exists'},
-                    400
-                )
-            return make_response(
-                user.to_dict(),
-                200
-            )
-            
+    def get(self, id):
+        user_id = session.get('user_id')
+        if not user_id:
+            return make_response({'error': 'Unauthorized'}, 422)
+
+        current_user = User.query.get(user_id)
+        if not current_user or current_user.user_role.name != 'admin':
+            return make_response({'error': 'Admins only'}, 422)
+
+        user = User.query.get(id)
+        if not user:
+            return make_response({'message': 'User does not exist'}, 404)
+
+        return make_response(user.to_dict(), 200)
 
 
     def patch(self, id):
-        if session['user_id']:
-            user = User.query.filter(User.id==id).first()
-            data=request.get_json()
-            print("PATCH DATA:", data)
+        user_id = session.get('user_id')
+        if not user_id:
+            return make_response({'error': 'Unauthorized'}, 422)
 
-            for attr, value in data.items():
-                if attr == 'user_role':
-                    role = UserRole.query.filter(UserRole.id==value).first()
-                    if not role:
-                        return make_response({'error': 'Invalid role ID'}, 400)
-                    user.user_role = role  
-                else:
-                    setattr(user, attr, value)
+        current_user = User.query.get(user_id)
+        if not current_user or current_user.user_role.name != 'admin':
+            return make_response({'error': 'Admins only'}, 422)
 
-                
-            db.session.add(user)
-            db.session.commit()
-            
-            return make_response(
-                user.to_dict(),
-                200
-            )
-        
-        else:
-            return make_response(
-                {'error':'Unauthorized'},
-                422
-            )    
-            
+        user = User.query.get(id)
+        if not user:
+            return make_response({'error': 'User not found'}, 404)
 
-    
-    def delete(self,id):
-        if session['user_id']:
-            user = User.query.filter(User.id==id).first()
-            if not user:
-                return make_response({'error': 'User not found'}, 404)
-            
-            db.session.delete(user)
-            db.session.commit()
-            
-            return make_response(
-                {
-                    'id':user.id,
-                    'name':user.name,
-                    'email':user.email
-                },
-                200
-            )
-        
-        else:
-            return make_response(
-                {'error':'Unauthorized'},
-                422
-            )
-                   
+        data = request.get_json()
+        print("PATCH DATA:", data)
+
+        for attr, value in data.items():
+            if attr == 'user_role':
+                role = UserRole.query.get(value)
+                if not role:
+                    return make_response({'error': 'Invalid role ID'}, 400)
+                user.user_role = role
+            else:
+                setattr(user, attr, value)
+
+        db.session.commit()
+        return make_response(user.to_dict(), 200)
+
+
+    def delete(self, id):
+        user_id = session.get('user_id')
+        if not user_id:
+            return make_response({'error': 'Unauthorized'}, 422)
+
+        current_user = User.query.get(user_id)
+        if not current_user or current_user.user_role.name != 'admin':
+            return make_response({'error': 'Admins only'}, 422)
+
+        user = User.query.get(id)
+        if not user:
+            return make_response({'error': 'User not found'}, 404)
+
+        db.session.delete(user)
+        db.session.commit()
+
+        return make_response(
+            {'id': user.id, 'name': user.name, 'email': user.email},
+            200
+        )
+   
             
 class CategoryResource(Resource):
     def get(self):
@@ -241,89 +268,81 @@ class CategoryResource(Resource):
             )
     
     def post(self):
-        if session['user_id']:
-            data = request.get_json()
+        user_id = session.get('user_id')
+        if not user_id:
+            return make_response({'error': 'Unauthorized'}, 422)
 
-            name=data.get('name')
+        current_user = User.query.get(user_id)
+        if not current_user or current_user.user_role.name != 'admin':
+            return make_response({'error': 'Admins only'}, 422)
 
-            new_category=Category(name=name)
+        data = request.get_json()
+        name = data.get('name')
 
-            db.session.add(new_category)
-            db.session.commit()
-            return make_response(
-                new_category.to_dict(),
-                201
-            )
-        else:
-            return make_response(
-                {'error':'Unauthorized'},
-                422
-            )
+        if not name:
+            return make_response({'error': 'Name is required'}, 400)
+
+        new_category = Category(name=name)
+        db.session.add(new_category)
+        db.session.commit()
+
+        return make_response(new_category.to_dict(), 201)
 
 
 class CategoryByIdResource(Resource):
-    def get(self,id):
-        if session['user_id']:
-            category = Category.query.filter(Category.id==id).first()
-            if category:
-                return make_response(
-                    category.to_dict(),
-                    200
-                )
-            else:
-                return make_response(
-                    {'message':'Category does not exists'},
-                    400
-                )
-            
-    def patch(self,id):
-        if session['user_id']:
-            category = Category.query.filter(Category.id==id).first()
-            if category:
-                data=request.get_json()
-                name=data.get('name')
+    def get(self, id):
+        if not session.get('user_id'):
+            return make_response({'error': 'Unauthorized'}, 422)
 
-                category.name= name  
+        category = Category.query.get(id)
+        if not category:
+            return make_response({'error': 'Category does not exist'}, 404)
 
-                db.session.commit()
+        return make_response(category.to_dict(), 200)
 
-                return make_response(
-                    category.to_dict(),
-                    201
-                )
-            else:
-                return make_response(
-                    {'message':'Product does not exists'},
-                    400
-                )
-        
-        else:
-            return make_response(
-                {'error':'Unauthorized'},
-                422
-            )
-        
-    
-    def delete(self,id):
-        if session['user_id']:
-            category = Category.query.filter(Category.id==id).first()
-            if category:
-                db.session.delete(category)
-                db.session.commit()
+    def patch(self, id):
+        user_id = session.get('user_id')
+        if not user_id:
+            return make_response({'error': 'Unauthorized'}, 422)
 
-                return make_response(
-                {
-                    'id':category.id,
-                    'name':category.name
-                },
-                200
-            )
-        
-        else:
-            return make_response(
-                {'error':'Unauthorized'},
-                422
-            )
+        current_user = User.query.get(user_id)
+        if not current_user or current_user.user_role.name != 'admin':
+            return make_response({'error': 'Admins only'}, 422)
+
+        category = Category.query.get(id)
+        if not category:
+            return make_response({'error': 'Category does not exist'}, 404)
+
+        data = request.get_json()
+        name = data.get('name')
+
+        if name:
+            category.name = name
+            db.session.commit()
+
+        return make_response(category.to_dict(), 200)
+
+    def delete(self, id):
+        user_id = session.get('user_id')
+        if not user_id:
+            return make_response({'error': 'Unauthorized'}, 422)
+
+        current_user = User.query.get(user_id)
+        if not current_user or current_user.user_role.name != 'admin':
+            return make_response({'error': 'Admins only'}, 422)
+
+        category = Category.query.get(id)
+        if not category:
+            return make_response({'error': 'Category does not exist'}, 404)
+
+        db.session.delete(category)
+        db.session.commit()
+
+        return make_response(
+            {'id': category.id, 'name': category.name},
+            200
+        )
+
 
 
 class ProductResource(Resource):
@@ -334,37 +353,40 @@ class ProductResource(Resource):
                 products_dict,
                 200
             )
-        
-    def post(self):
-        if session['user_id']:
-            data=request.get_json()
-
-            name=data.get('name')
-            price=data.get('price')
-            stock=data.get('stock')
-            category_id=data.get('category_id')
-            if not Category.query.filter(Category.id==category_id).first():
-                return make_response({"error": "Category ID does not exist"}, 400)
-            supplier_id=data.get('supplier_id')
-            if not Supplier.query.filter(Supplier.id==supplier_id).first():
-                return make_response({"error": "Supplier ID does not exist"}, 400)
-
-            new_product=Product(name=name,price=price,quantity_in_stock=stock,category_id=category_id,supplier_id=supplier_id)
-
-            db.session.add(new_product)
-            db.session.commit()
-
-            return make_response(
-                new_product.to_dict(),
-                201
-            )
-        
         else:
             return make_response(
                 {'error':'Unauthorized'},
                 422
             )
+        
+    def post(self):
+        user_id = session.get('user_id')
+        if not user_id:
+            return make_response({'error': 'Unauthorized'}, 422)
 
+        current_user = User.query.get(user_id)
+        if not current_user or current_user.user_role.name != 'admin':
+            return make_response({'error': 'Admins only'}, 422)
+
+        data = request.get_json()
+        name = data.get('name')
+        description = data.get('description')
+        price = data.get('price')
+        stock = data.get('quantity_in_stock')
+        category_id = data.get('category_id')
+        supplier_id = data.get('supplier_id')
+
+        if not Category.query.get(category_id):
+            return make_response({"error": "Category ID does not exist"}, 400)
+        if not Supplier.query.get(supplier_id):
+            return make_response({"error": "Supplier ID does not exist"}, 400)
+
+        new_product = Product(name=name,description=description,price=price,quantity_in_stock=stock,category_id=category_id,supplier_id=supplier_id)
+
+        db.session.add(new_product)
+        db.session.commit()
+
+        return make_response(new_product.to_dict(), 201)
 
 class ProductByIDResource(Resource):
     def get(self,id):
@@ -387,56 +409,46 @@ class ProductByIDResource(Resource):
                 422
             )
         
-    def patch(self,id):
-        if session['user_id']:
-            product = Product.query.filter(Product.id == id).first()
-            if product:
-                data = request.get_json()
-                for attr in data:
-                    setattr(product,attr,data.get(attr))
+    def patch(self, id):
+        user_id = session.get('user_id')
+        if not user_id:
+            return make_response({'error': 'Unauthorized'}, 422)
 
-                db.session.commit()
-                return make_response(
-                    product.to_dict(),
-                    200
-                )
-            
-            else:
-                return make_response(
-                    {'message':'Product does not exists'},
-                    404
-                )
-        
-        else:
-            return make_response(
-                {'error':'Unauthorized'},
-                422
-            )
-            
-    def delete(self,id):
-        if session['user_id']:
-            product = Product.query.filter(Product.id == id).first()
-            if product:
-                db.session.delete(product)
-                db.session.commit()
+        current_user = User.query.get(user_id)
+        if not current_user or current_user.user_role.name != 'admin':
+            return make_response({'error': 'Admins only'}, 422)
 
-                return make_response(
-                    {'message':'Deleted successfully'},
-                    200
-                )
-            
-            else:
-                return make_response(
-                    {'message':'Product does not exists'},
-                    404
-                )
+        product = Product.query.get(id)
+        if not product:
+            return make_response({'error': 'Product does not exist'}, 404)
 
-        else:
-            return make_response(
-                {'error':'Unauthorized'},
-                422
-            )
-            
+        data = request.get_json()
+        for attr, value in data.items():
+            if hasattr(product, attr):
+                setattr(product, attr, value)
+
+        db.session.commit()
+        return make_response(product.to_dict(), 200)
+
+    def delete(self, id):
+        user_id = session.get('user_id')
+        if not user_id:
+            return make_response({'error': 'Unauthorized'}, 422)
+
+        current_user = User.query.get(user_id)
+        if not current_user or current_user.user_role.name != 'admin':
+            return make_response({'error': 'Admins only'}, 422)
+
+        product = Product.query.get(id)
+        if not product:
+            return make_response({'error': 'Product does not exist'}, 404)
+
+        db.session.delete(product)
+        db.session.commit()
+
+        return make_response({'message': 'Deleted successfully'}, 200)
+
+
 class SupplierResource(Resource):
     def get(self):
         if session['user_id']:
@@ -452,92 +464,93 @@ class SupplierResource(Resource):
             )
         
     def post(self):
-        if session['user_id']:
-            data=request.get_json()
-            name=data.get('name')
-            phone=data.get('phone')
-            email=data.get('email')
-            address=data.get('address')
+        user_id = session.get('user_id')
+        if not user_id:
+            return make_response({'error': 'Unauthorized'}, 422)
 
-            new_supplier = Supplier(name=name,phone=phone,email=email,address=address)
+        current_user = User.query.get(user_id)
+        if not current_user or current_user.user_role.name != 'admin':
+            return make_response({'error': 'Admins only'}, 422)
 
-            db.session.add(new_supplier)
-            db.session.commit()
-        
-        else:
-            return make_response(
-                {'error':'Unauthorized'},
-                401
-            )
+        data = request.get_json()
+        name = data.get('name')
+        phone = data.get('phone')
+        email = data.get('email')
+        address = data.get('address')
+
+        new_supplier = Supplier(name=name, phone=phone, email=email, address=address)
+
+        db.session.add(new_supplier)
+        db.session.commit()
+
+        return make_response(new_supplier.to_dict(), 201)
         
 class SupplierByIdResource(Resource):
     def get(self,id):
-        if session['user_id']:
-            supplier = Supplier.query.filter(Supplier.id==id).first()
-            if supplier:
-                return make_response(
-                    supplier.to_dict(),
-                    200
-                )
-            else:
-                return make_response(
-                    {'message':'Supplier does not exists'},
-                    404
-                )
-            
+        if not session.get('user_id'):
+            return make_response({'error': 'Unauthorized'}, 422)
+
+        supplier = Supplier.query.get(id)
+        if supplier:
+            return make_response(supplier.to_dict(), 200)
         else:
-            return make_response(
-                {'error':'Unauthorized'},
-                401
-            )
+            return make_response({'message': 'Supplier does not exist'}, 404)
 
     def patch(self,id):
-        if session['user_id']:
-            supplier = Supplier.query.filter(Supplier.id==id).first()
-            if supplier:
-                data = request.get_json()
-                for attr in data:
-                    setattr(supplier,attr,data.get(attr))
-                
-                db.session.commit()
-                return make_response(
-                    supplier.to_dict(),
-                    200
-                )
-            else:
-                return make_response(
-                    {'message':'Supplier does not exists'},
-                    404
-                )
-            
-        else:
-            return make_response(
-                {'error':'Unauthorized'},
-                401
-            )
+        user_id = session.get('user_id')
+        if not user_id:
+            return make_response({'error': 'Unauthorized'}, 422)
+
+        current_user = User.query.get(user_id)
+        if not current_user or current_user.user_role.name != 'admin':
+            return make_response({'error': 'Admins only'}, 422)
+
+        supplier = Supplier.query.get(id)
+        if not supplier:
+            return make_response({'message': 'Supplier does not exist'}, 404)
+
+        data = request.get_json()
+        for attr, value in data.items():
+            if hasattr(supplier, attr):
+                setattr(supplier, attr, value)
+
+        db.session.commit()
+        return make_response(supplier.to_dict(), 200)
 
     def delete(self,id):
-        if session['user_id']:
-            supplier = Supplier.query.filter(Supplier.id==id).first()
-            if supplier:
-                db.session.delete(supplier)
-                db.session.commit()
-                return make_response(
-                    supplier.to_dict(),
-                    200
-                )
-            else:
-                return make_response(
-                    {'message':'Supplier does not exists'},
-                    404
-                )
-            
-        else:
-            return make_response(
-                {'error':'Unauthorized'},
-                422
-            )
+        user_id = session.get('user_id')
+        if not user_id:
+            return make_response({'error': 'Unauthorized'}, 422)
 
+        current_user = User.query.get(user_id)
+        if not current_user or current_user.user_role.name != 'admin':
+            return make_response({'error': 'Admins only'}, 422)
+
+        supplier = Supplier.query.get(id)
+        if not supplier:
+            return make_response({'message': 'Supplier does not exist'}, 404)
+
+        db.session.delete(supplier)
+        db.session.commit()
+        return make_response({'message': 'Deleted successfully'}, 200)
+
+
+class Me(Resource):
+    def get(self):
+        user_id = session.get('user_id')
+        if not user_id:
+            return make_response({'error': 'Unauthorized'}, 422)
+
+        user = User.query.get(user_id)
+        if not user:
+            return make_response({'error': 'User not found'}, 404)
+
+        return {
+            'id': user.id,
+            'name': user.name,
+            'email': user.email,
+            'user_role': user.user_role.name
+        }, 200
 
 
 
@@ -552,6 +565,7 @@ api.add_resource(ProductResource,'/products')
 api.add_resource(ProductByIDResource,'/products/<int:id>')
 api.add_resource(SupplierResource,'/suppliers')
 api.add_resource(SupplierByIdResource,'/suppliers/<int:id>')
+api.add_resource(Me, '/me')
 
 if __name__ == '__main__':
     app.run()
